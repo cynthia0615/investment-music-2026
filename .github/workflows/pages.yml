@@ -1,0 +1,29 @@
+name: Publish review
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Download published review
+        run: |
+          mkdir -p public
+          wget --mirror --page-requisites --no-host-directories --directory-prefix=public https://investment-music-review-2026-hsinen.cindy8906115.chatgpt.site/
+          wget -O public/market-charge.mp3 https://investment-music-review-2026-hsinen.cindy8906115.chatgpt.site/market-charge.mp3
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - uses: actions/deploy-pages@v4
+        id: deployment

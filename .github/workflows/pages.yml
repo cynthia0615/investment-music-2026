@@ -14,14 +14,21 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Prepare website
+        run: |
+          python3 - <<'PY'
+          from urllib.request import urlopen
+          from pathlib import Path
+          base = "https://investment-music-review-2026-hsinen.cindy8906115.chatgpt.site/"
+          paths = ["index.html", "market-charge.mp3"] + ["assets/asset-%d.%s" % (i, "svg" if i in (2,7) else "png") for i in range(1,10)]
+          for name in paths:
+              target = Path("public") / name
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(urlopen(base + ("" if name == "index.html" else name)).read())
+          PY
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Download published review
-        run: |
-          mkdir -p public
-          wget --mirror --page-requisites --no-host-directories --directory-prefix=public https://investment-music-review-2026-hsinen.cindy8906115.chatgpt.site/
-          wget -O public/market-charge.mp3 https://investment-music-review-2026-hsinen.cindy8906115.chatgpt.site/market-charge.mp3
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
